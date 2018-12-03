@@ -11,7 +11,7 @@ import re
 
 class Find(QtWidgets.QDialog):
     def __init__(self, parent = None):
-        
+
         QtWidgets.QDialog.__init__(self, parent)
 
         self.parent = parent
@@ -19,7 +19,7 @@ class Find(QtWidgets.QDialog):
         self.lastStart = 0
 
         self.initUI()
- 
+
     def initUI(self):
 
         # Button to search the document for something
@@ -48,14 +48,14 @@ class Find(QtWidgets.QDialog):
         # queried text
         self.replaceField = QtWidgets.QTextEdit(self)
         self.replaceField.resize(250,50)
-        
+
         layout = QtWidgets.QGridLayout()
 
         layout.addWidget(self.findField,1,0,1,4)
         layout.addWidget(self.normalRadio,2,2)
         layout.addWidget(regexRadio,2,3)
         layout.addWidget(findButton,2,0,1,2)
-        
+
         layout.addWidget(self.replaceField,3,0,1,4)
         layout.addWidget(replaceButton,4,0,1,2)
         layout.addWidget(allButton,4,2,1,2)
@@ -85,14 +85,14 @@ class Find(QtWidgets.QDialog):
             if self.lastStart >= 0:
 
                 end = self.lastStart + len(query)
-                
+
                 self.moveCursor(self.lastStart,end)
 
             else:
 
                 # Make the next search start from the begining again
                 self.lastStart = 0
-                
+
                 self.parent.text.moveCursor(QtGui.QTextCursor.End)
 
         else:
@@ -106,13 +106,13 @@ class Find(QtWidgets.QDialog):
             if match:
 
                 self.lastStart = match.start()
-                
+
                 self.moveCursor(self.lastStart,match.end())
 
             else:
 
                 self.lastStart = 0
-                
+
                 # We set the cursor to the end if the search was unsuccessful
                 self.parent.text.moveCursor(QtGui.QTextCursor.End)
 
@@ -154,5 +154,5 @@ class Find(QtWidgets.QDialog):
         # which will make the cursor select the the match's text
         cursor.movePosition(QtGui.QTextCursor.Right,QtGui.QTextCursor.KeepAnchor,end - start)
 
-        # And finally we set this new cursor as the parent's 
+        # And finally we set this new cursor as the parent's
         self.parent.text.setTextCursor(cursor)

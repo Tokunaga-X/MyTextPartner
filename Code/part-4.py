@@ -2,17 +2,16 @@
 
 import sys
 
-#PYQT5 PyQt4’s QtGui module has been split into PyQt5’s QtGui, QtPrintSupport and QtWidgets modules
-
 from PyQt5 import QtWidgets
-#PYQT5 QMainWindow, QApplication, QAction, QFontComboBox, QSpinBox, QTextEdit, QMessageBox
-#PYQT5 QFileDialog, QColorDialog, QDialog
 
 from PyQt5 import QtPrintSupport
-#PYQT5 QPrintPreviewDialog, QPrintDialog
 
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
+#添加语音识别模块
+import speech_recognition as sr
+from translate import Translator
+
 
 from ext import *
 
@@ -28,6 +27,12 @@ class Main(QtWidgets.QMainWindow):
         self.initUI()
 
     def initToolbar(self):
+        #语言输入
+        speakAction = QtWidgets.QAction(QtGui.QIcon("icons/speak.png"),"Speak",self)
+        #self.newAction.setShortcut("Ctrl+N")
+        speakAction.setStatusTip("Write down what u say.")
+        speakAction.triggered.connect(self.speakinput)
+
 
         self.newAction = QtWidgets.QAction(QtGui.QIcon("icons/new.png"),"New",self)
         self.newAction.setShortcut("Ctrl+N")
@@ -115,6 +120,11 @@ class Main(QtWidgets.QMainWindow):
         numberedAction.triggered.connect(self.numberList)
 
         self.toolbar = self.addToolBar("Options")
+        #testQSS
+        #self.toolbar.setStyleSheet("""background-color: #222222; border: none; padding: 1px; """)
+
+        #speakAction添加
+        self.toolbar.addAction(speakAction)
 
         self.toolbar.addAction(self.newAction)
         self.toolbar.addAction(self.openAction)
@@ -154,6 +164,10 @@ class Main(QtWidgets.QMainWindow):
         fontBox.currentFontChanged.connect(lambda font: self.text.setCurrentFont(font))
 
         fontSize = QtWidgets.QSpinBox(self)
+
+        self.textbox=QtWidgets.QLineEdit(self)
+        self.bt1=QtWidgets.QPushButton('translate',self)
+        self.bt1.clicked.connect(self.button_onclick)
 
         # Will display " pt" after each value
         fontSize.setSuffix(" pt")
@@ -212,6 +226,10 @@ class Main(QtWidgets.QMainWindow):
         self.formatbar.addWidget(fontSize)
 
         self.formatbar.addSeparator()
+        self.formatbar.addWidget(self.textbox)
+        self.formatbar.addWidget(self.bt1)
+
+        self.formatbar.addSeparator()
 
         self.formatbar.addAction(fontColor)
         self.formatbar.addAction(backColor)
@@ -236,6 +254,7 @@ class Main(QtWidgets.QMainWindow):
 
         self.formatbar.addAction(indentAction)
         self.formatbar.addAction(dedentAction)
+
 
     def initMenubar(self):
 
@@ -285,9 +304,9 @@ class Main(QtWidgets.QMainWindow):
         self.initToolbar()
         self.initFormatbar()
         self.initMenubar()
-
         self.setCentralWidget(self.text)
-
+        self.output=QtWidgets.QLabel()
+        self.output.setGeometry(QtCore.QRect(60, 60, 191, 61))
         # Initialize a statusbar for the window
         self.statusbar = self.statusBar()
 
@@ -302,8 +321,19 @@ class Main(QtWidgets.QMainWindow):
         self.text.textChanged.connect(self.changed)
 
         self.setGeometry(100,100,1030,800)
-        self.setWindowTitle("Writer")
+        self.setWindowTitle("MyReadingPartner")
         self.setWindowIcon(QtGui.QIcon("icons/icon.png"))
+
+
+    def button_onclick(self):
+        def translateGoogle2(text):
+            translator=Translator(to_lang="zh")
+            translation=translator.translate(text)
+            return translation
+
+        stringtest = translateGoogle2(self.text.textCursor().selectedText())
+        self.textbox.setText(stringtest)
+
 
     def changed(self):
         self.changesSaved = False
@@ -315,19 +345,19 @@ class Main(QtWidgets.QMainWindow):
             event.accept()
 
         else:
-        
+
             popup = QtWidgets.QMessageBox(self)
 
             popup.setIcon(QtWidgets.QMessageBox.Warning)
-            
+
             popup.setText("The document has been modified")
-            
+
             popup.setInformativeText("Do you want to save your changes?")
-            
+
             popup.setStandardButtons(QtWidgets.QMessageBox.Save   |
                                       QtWidgets.QMessageBox.Cancel |
                                       QtWidgets.QMessageBox.Discard)
-            
+
             popup.setDefaultButton(QtWidgets.QMessageBox.Save)
 
             answer = popup.exec_()
@@ -523,6 +553,23 @@ class Main(QtWidgets.QMainWindow):
         # Set the visibility to its inverse
         self.statusbar.setVisible(not state)
 
+    def speakinput(self):
+        r = sr.Recognizer()
+        with sr.Microphone() as source:
+            print("Say something!")
+            audio = r.listen(source)
+        try:
+        # for testing purposes, we're just using the default API key
+        # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
+        # instead of `r.recognize_google(audio)`
+         print("Google Speech Recognition thinks you said \n" + r.recognize_google(audio))
+
+        except sr.UnknownValueError:
+            print("Google Speech Recognition could not understand audio")
+
+        except sr.RequestError as e:
+            print("Could not request results from Google Speech Recognition service; {0}".format(e))
+
     def new(self):
 
         spawn = Main()
@@ -602,7 +649,7 @@ class Main(QtWidgets.QMainWindow):
         filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Insert image',".","Images (*.png *.xpm *.jpg *.bmp *.gif)")[0]
 
         if filename:
-            
+
             # Create image object
             image = QtGui.QImage(filename)
 
@@ -805,7 +852,6 @@ class Main(QtWidgets.QMainWindow):
 
         else:
             self.handleDedent(cursor)
-
 
     def bulletList(self):
 

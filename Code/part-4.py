@@ -3,22 +3,38 @@
 import sys
 
 from PyQt5 import QtWidgets
-
 from PyQt5 import QtPrintSupport
-
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtCore import Qt
-#添加语音识别模块
-import speech_recognition as sr
-from translate import Translator
-
 
 from ext import *
+from langdetect import detect
+
+#翻译模块
+from translate import Translator
+
+#add(QSS)
+
+class CommonHelper:
+    def __init__(self,parent=None):
+        pass
+    def readQss(self,  style):
+        with open(style,'r') as f:
+            return f.read()
+
 
 class Main(QtWidgets.QMainWindow):
 
+    choice_list=['中文','English','Français','日本語 ','한국어']
+
     def __init__(self,parent=None):
         QtWidgets.QMainWindow.__init__(self,parent)
+
+        #add(QSS)
+
+        styleFile = 'style.qss'
+        qssStyle = CommonHelper.readQss(self,styleFile)
+        self.setStyleSheet(qssStyle)
 
         self.filename = ""
 
@@ -28,174 +44,74 @@ class Main(QtWidgets.QMainWindow):
 
     def initToolbar(self):
         #语言输入
-        speakAction = QtWidgets.QAction(QtGui.QIcon("icons/speak.png"),"Speak",self)
-        #self.newAction.setShortcut("Ctrl+N")
-        speakAction.setStatusTip("Write down what u say.")
-        speakAction.triggered.connect(self.speakinput)
+
+        #speakAction = QtWidgets.QAction(QtGui.QIcon("icons/speak.png"),"Speak",self)
+        #speakAction.setStatusTip("Write down what u say.")
+        #speakAction.triggered.connect(self.speakInput)
 
 
-        self.newAction = QtWidgets.QAction(QtGui.QIcon("icons/new.png"),"New",self)
+        self.newAction = QtWidgets.QAction(QtGui.QIcon("icons/new1.png"),"New",self)
         self.newAction.setShortcut("Ctrl+N")
-        self.newAction.setStatusTip("Create a new document from scratch.")
+        self.newAction.setStatusTip("新建一个编辑器程序。")
         self.newAction.triggered.connect(self.new)
 
-        self.openAction = QtWidgets.QAction(QtGui.QIcon("icons/open.png"),"Open file",self)
-        self.openAction.setStatusTip("Open existing document")
+        self.openAction = QtWidgets.QAction(QtGui.QIcon("icons/open1.png"),"Open file",self)
+        self.openAction.setStatusTip("打开已存在的文本文件。")
         self.openAction.setShortcut("Ctrl+O")
         self.openAction.triggered.connect(self.open)
 
-        self.saveAction = QtWidgets.QAction(QtGui.QIcon("icons/save.png"),"Save",self)
-        self.saveAction.setStatusTip("Save document")
+        self.saveAction = QtWidgets.QAction(QtGui.QIcon("icons/save1.png"),"Save",self)
+        self.saveAction.setStatusTip("如果已存在文件，保存当前内容；如果是新建的，就要选定位置保存。")
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.triggered.connect(self.save)
 
-        self.printAction = QtWidgets.QAction(QtGui.QIcon("icons/print.png"),"Print document",self)
-        self.printAction.setStatusTip("Print document")
-        self.printAction.setShortcut("Ctrl+P")
-        self.printAction.triggered.connect(self.printHandler)
-
-        self.previewAction = QtWidgets.QAction(QtGui.QIcon("icons/preview.png"),"Page view",self)
-        self.previewAction.setStatusTip("Preview page before printing")
-        self.previewAction.setShortcut("Ctrl+Shift+P")
-        self.previewAction.triggered.connect(self.preview)
-
-        self.findAction = QtWidgets.QAction(QtGui.QIcon("icons/find.png"),"Find and replace",self)
-        self.findAction.setStatusTip("Find and replace words in your document")
-        self.findAction.setShortcut("Ctrl+F")
-        self.findAction.triggered.connect(find.Find(self).show)
-
-        self.cutAction = QtWidgets.QAction(QtGui.QIcon("icons/cut.png"),"Cut to clipboard",self)
-        self.cutAction.setStatusTip("Delete and copy text to clipboard")
-        self.cutAction.setShortcut("Ctrl+X")
-        self.cutAction.triggered.connect(self.text.cut)
-
-        self.copyAction = QtWidgets.QAction(QtGui.QIcon("icons/copy.png"),"Copy to clipboard",self)
-        self.copyAction.setStatusTip("Copy text to clipboard")
-        self.copyAction.setShortcut("Ctrl+C")
-        self.copyAction.triggered.connect(self.text.copy)
-
-        self.pasteAction = QtWidgets.QAction(QtGui.QIcon("icons/paste.png"),"Paste from clipboard",self)
-        self.pasteAction.setStatusTip("Paste text from clipboard")
-        self.pasteAction.setShortcut("Ctrl+V")
-        self.pasteAction.triggered.connect(self.text.paste)
-
         self.undoAction = QtWidgets.QAction(QtGui.QIcon("icons/undo.png"),"Undo last action",self)
-        self.undoAction.setStatusTip("Undo last action")
+        self.undoAction.setStatusTip("撤销上一步操作。")
         self.undoAction.setShortcut("Ctrl+Z")
         self.undoAction.triggered.connect(self.text.undo)
 
         self.redoAction = QtWidgets.QAction(QtGui.QIcon("icons/redo.png"),"Redo last undone thing",self)
-        self.redoAction.setStatusTip("Redo last undone thing")
+        self.redoAction.setStatusTip("重新执行上一步操作。")
         self.redoAction.setShortcut("Ctrl+Y")
         self.redoAction.triggered.connect(self.text.redo)
 
-        dateTimeAction = QtWidgets.QAction(QtGui.QIcon("icons/calender.png"),"Insert current date/time",self)
-        dateTimeAction.setStatusTip("Insert current date/time")
+        dateTimeAction = QtWidgets.QAction(QtGui.QIcon("icons/time.png"),"Insert current date/time",self)
+        dateTimeAction.setStatusTip("在文本中插入当前时间。")
         dateTimeAction.setShortcut("Ctrl+D")
         dateTimeAction.triggered.connect(datetime.DateTime(self).show)
 
-        wordCountAction = QtWidgets.QAction(QtGui.QIcon("icons/count.png"),"See word/symbol count",self)
-        wordCountAction.setStatusTip("See word/symbol count")
-        wordCountAction.setShortcut("Ctrl+W")
-        wordCountAction.triggered.connect(self.wordCount)
-
         tableAction = QtWidgets.QAction(QtGui.QIcon("icons/table.png"),"Insert table",self)
-        tableAction.setStatusTip("Insert table")
+        tableAction.setStatusTip("在文本中插入表格。")
         tableAction.setShortcut("Ctrl+T")
         tableAction.triggered.connect(table.Table(self).show)
 
         imageAction = QtWidgets.QAction(QtGui.QIcon("icons/image.png"),"Insert image",self)
-        imageAction.setStatusTip("Insert image")
+        imageAction.setStatusTip("在文本中插入图片。")
         imageAction.setShortcut("Ctrl+Shift+I")
         imageAction.triggered.connect(self.insertImage)
 
         bulletAction = QtWidgets.QAction(QtGui.QIcon("icons/bullet.png"),"Insert bullet List",self)
-        bulletAction.setStatusTip("Insert bullet list")
+        bulletAction.setStatusTip("在文本中插入点列表。")
         bulletAction.setShortcut("Ctrl+Shift+B")
         bulletAction.triggered.connect(self.bulletList)
 
         numberedAction = QtWidgets.QAction(QtGui.QIcon("icons/number.png"),"Insert numbered List",self)
-        numberedAction.setStatusTip("Insert numbered list")
+        numberedAction.setStatusTip("在文本中插入数字列表。")
         numberedAction.setShortcut("Ctrl+Shift+L")
         numberedAction.triggered.connect(self.numberList)
 
-        self.toolbar = self.addToolBar("Options")
-        #testQSS
-        #self.toolbar.setStyleSheet("""background-color: #222222; border: none; padding: 1px; """)
-
-        #speakAction添加
-        self.toolbar.addAction(speakAction)
-
-        self.toolbar.addAction(self.newAction)
-        self.toolbar.addAction(self.openAction)
-        self.toolbar.addAction(self.saveAction)
-
-        self.toolbar.addSeparator()
-
-        self.toolbar.addAction(self.printAction)
-        self.toolbar.addAction(self.previewAction)
-
-        self.toolbar.addSeparator()
-
-        self.toolbar.addAction(self.cutAction)
-        self.toolbar.addAction(self.copyAction)
-        self.toolbar.addAction(self.pasteAction)
-        self.toolbar.addAction(self.undoAction)
-        self.toolbar.addAction(self.redoAction)
-
-        self.toolbar.addSeparator()
-
-        self.toolbar.addAction(self.findAction)
-        self.toolbar.addAction(dateTimeAction)
-        self.toolbar.addAction(wordCountAction)
-        self.toolbar.addAction(tableAction)
-        self.toolbar.addAction(imageAction)
-
-        self.toolbar.addSeparator()
-
-        self.toolbar.addAction(bulletAction)
-        self.toolbar.addAction(numberedAction)
-
-        self.addToolBarBreak()
-
-    def initFormatbar(self):
-
-        fontBox = QtWidgets.QFontComboBox(self)
-        fontBox.currentFontChanged.connect(lambda font: self.text.setCurrentFont(font))
-
-        fontSize = QtWidgets.QSpinBox(self)
-
-        self.textbox=QtWidgets.QLineEdit(self)
-        self.bt1=QtWidgets.QPushButton('translate',self)
-        self.bt1.clicked.connect(self.button_onclick)
-
-        # Will display " pt" after each value
-        fontSize.setSuffix(" pt")
-
-        fontSize.valueChanged.connect(lambda size: self.text.setFontPointSize(size))
-
-        fontSize.setValue(14)
-
-        fontColor = QtWidgets.QAction(QtGui.QIcon("icons/font-color.png"),"Change font color",self)
-        fontColor.triggered.connect(self.fontColorChanged)
-
         boldAction = QtWidgets.QAction(QtGui.QIcon("icons/bold.png"),"Bold",self)
+        boldAction.setStatusTip("设置选中文本为粗体。")
         boldAction.triggered.connect(self.bold)
 
         italicAction = QtWidgets.QAction(QtGui.QIcon("icons/italic.png"),"Italic",self)
+        italicAction.setStatusTip("设置选中文本为斜体。")
         italicAction.triggered.connect(self.italic)
 
-        underlAction = QtWidgets.QAction(QtGui.QIcon("icons/underline.png"),"Underline",self)
-        underlAction.triggered.connect(self.underline)
-
         strikeAction = QtWidgets.QAction(QtGui.QIcon("icons/strike.png"),"Strike-out",self)
+        strikeAction.setStatusTip("设置选中文本为删去状态。")
         strikeAction.triggered.connect(self.strike)
 
-        superAction = QtWidgets.QAction(QtGui.QIcon("icons/superscript.png"),"Superscript",self)
-        superAction.triggered.connect(self.superScript)
-
-        subAction = QtWidgets.QAction(QtGui.QIcon("icons/subscript.png"),"Subscript",self)
-        subAction.triggered.connect(self.subScript)
 
         alignLeft = QtWidgets.QAction(QtGui.QIcon("icons/align-left.png"),"Align left",self)
         alignLeft.triggered.connect(self.alignLeft)
@@ -209,89 +125,108 @@ class Main(QtWidgets.QMainWindow):
         alignJustify = QtWidgets.QAction(QtGui.QIcon("icons/align-justify.png"),"Align justify",self)
         alignJustify.triggered.connect(self.alignJustify)
 
-        indentAction = QtWidgets.QAction(QtGui.QIcon("icons/indent.png"),"Indent Area",self)
-        indentAction.setShortcut("Ctrl+Tab")
-        indentAction.triggered.connect(self.indent)
 
-        dedentAction = QtWidgets.QAction(QtGui.QIcon("icons/dedent.png"),"Dedent Area",self)
-        dedentAction.setShortcut("Shift+Tab")
-        dedentAction.triggered.connect(self.dedent)
+        fontColor = QtWidgets.QAction(QtGui.QIcon("icons/font-color.png"),"改变字体颜色",self)
+        fontColor.triggered.connect(self.fontColorChanged)
 
-        backColor = QtWidgets.QAction(QtGui.QIcon("icons/highlight.png"),"Change background color",self)
-        backColor.triggered.connect(self.highlight)
 
-        self.formatbar = self.addToolBar("Format")
+        themeAction = QtWidgets.QAction(QtGui.QIcon("icons/theme.png"),"改变主题",self)
+        themeAction.setStatusTip("最小化窗口。")
+        themeAction.triggered.connect(self.ThemeChange)
+
+
+        minisizeAction = QtWidgets.QAction(QtGui.QIcon("icons/minimize.png"),"最小化",self)
+        minisizeAction.setStatusTip("最小化窗口。")
+        minisizeAction.triggered.connect(self.MinisizeB)
+
+        closeAction = QtWidgets.QAction(QtGui.QIcon("icons/close.png"),"关闭",self)
+        closeAction.setStatusTip("关闭窗口。")
+        closeAction.triggered.connect(self.CloseB)
+
+        self.toolbar = QtWidgets.QToolBar()
+        self.addToolBar(QtCore.Qt.TopToolBarArea,self.toolbar)
+        #self.toolbar.setFont(QtGui.QFont("华文彩云"))
+
+        #speakAction添加
+        #self.toolbar.addAction(speakAction)
+
+        self.toolbar.addAction(self.newAction)
+        self.toolbar.addAction(self.openAction)
+        self.toolbar.addAction(self.saveAction)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(self.undoAction)
+        self.toolbar.addAction(self.redoAction)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(imageAction)
+        self.toolbar.addAction(tableAction)
+        self.toolbar.addAction(dateTimeAction)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(bulletAction)
+        self.toolbar.addAction(numberedAction)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(fontColor)
+        self.toolbar.addAction(boldAction)
+        self.toolbar.addAction(italicAction)
+        self.toolbar.addAction(strikeAction)
+
+        self.toolbar.addSeparator()
+
+        self.toolbar.addAction(alignLeft)
+        self.toolbar.addAction(alignCenter)
+        self.toolbar.addAction(alignRight)
+        self.toolbar.addAction(alignJustify)
+
+        self.toolbar.addSeparator()
+        self.toolbar.addAction(themeAction)
+        self.toolbar.addAction(minisizeAction)
+        self.toolbar.addAction(closeAction)
+
+        self.addToolBarBreak()
+
+    def initFormatbar(self):
+        fontBox = QtWidgets.QFontComboBox(self)
+        fontBox.currentFontChanged.connect(lambda font: self.text.setCurrentFont(font))
+        fontBox.setFont(QtGui.QFont("华文彩云"))
+
+        fontSize = QtWidgets.QSpinBox(self)
+
+        self.translateBox=QtWidgets.QLineEdit(self)
+        self.comboBox = QtWidgets.QComboBox(self)
+
+        self.translateButton=QtWidgets.QPushButton(self)
+        self.translateButton.setIcon(QtGui.QIcon('C:/Users/lenovo/Documents/GitHub/Software-Engineering-Program/Code/icons/translate.png'))
+        self.translateButton.clicked.connect(self.translate)
+
+        # Will display " pt" after each value
+        fontSize.setSuffix(" pt")
+        fontSize.value()
+        fontSize.setSingleStep(5)
+        fontSize.setWrapping(True);
+
+        fontSize.valueChanged.connect(lambda size: self.text.setFontPointSize(size))
+
+        fontSize.setValue(15)
+
+        self.formatbar = QtWidgets.QToolBar()
+        self.addToolBar(QtCore.Qt.BottomToolBarArea,self.formatbar)
 
         self.formatbar.addWidget(fontBox)
         self.formatbar.addWidget(fontSize)
 
         self.formatbar.addSeparator()
-        self.formatbar.addWidget(self.textbox)
-        self.formatbar.addWidget(self.bt1)
 
-        self.formatbar.addSeparator()
-
-        self.formatbar.addAction(fontColor)
-        self.formatbar.addAction(backColor)
-
-        self.formatbar.addSeparator()
-
-        self.formatbar.addAction(boldAction)
-        self.formatbar.addAction(italicAction)
-        self.formatbar.addAction(underlAction)
-        self.formatbar.addAction(strikeAction)
-        self.formatbar.addAction(superAction)
-        self.formatbar.addAction(subAction)
-
-        self.formatbar.addSeparator()
-
-        self.formatbar.addAction(alignLeft)
-        self.formatbar.addAction(alignCenter)
-        self.formatbar.addAction(alignRight)
-        self.formatbar.addAction(alignJustify)
-
-        self.formatbar.addSeparator()
-
-        self.formatbar.addAction(indentAction)
-        self.formatbar.addAction(dedentAction)
-
-
-    def initMenubar(self):
-
-        menubar = self.menuBar()
-
-        file = menubar.addMenu("File")
-        edit = menubar.addMenu("Edit")
-        view = menubar.addMenu("View")
-
-        # Add the most important actions to the menubar
-
-        file.addAction(self.newAction)
-        file.addAction(self.openAction)
-        file.addAction(self.saveAction)
-        file.addAction(self.printAction)
-        file.addAction(self.previewAction)
-
-        edit.addAction(self.undoAction)
-        edit.addAction(self.redoAction)
-        edit.addAction(self.cutAction)
-        edit.addAction(self.copyAction)
-        edit.addAction(self.pasteAction)
-        edit.addAction(self.findAction)
-
-        # Toggling actions for the various bars
-        toolbarAction = QtWidgets.QAction("Toggle Toolbar",self)
-        toolbarAction.triggered.connect(self.toggleToolbar)
-
-        formatbarAction = QtWidgets.QAction("Toggle Formatbar",self)
-        formatbarAction.triggered.connect(self.toggleFormatbar)
-
-        statusbarAction = QtWidgets.QAction("Toggle Statusbar",self)
-        statusbarAction.triggered.connect(self.toggleStatusbar)
-
-        view.addAction(toolbarAction)
-        view.addAction(formatbarAction)
-        view.addAction(statusbarAction)
+        self.formatbar.addWidget(self.translateBox)
+        self.formatbar.addWidget(self.comboBox)
+        self.comboBox.addItems(self.choice_list)
+        self.formatbar.addWidget(self.translateButton)
 
     def initUI(self):
 
@@ -302,13 +237,14 @@ class Main(QtWidgets.QMainWindow):
         self.text.setTabStopWidth(33)
 
         self.initToolbar()
-        self.initFormatbar()
-        self.initMenubar()
+        #self.initMenubar()
         self.setCentralWidget(self.text)
-        self.output=QtWidgets.QLabel()
-        self.output.setGeometry(QtCore.QRect(60, 60, 191, 61))
+        self.initFormatbar()
+
         # Initialize a statusbar for the window
         self.statusbar = self.statusBar()
+
+        #self.statusbar.setStyleSheet(QDialog{background-image:"icons/drag.png"})
 
         # If the cursor position changes, call the function that displays
         # the line and column number
@@ -320,20 +256,58 @@ class Main(QtWidgets.QMainWindow):
 
         self.text.textChanged.connect(self.changed)
 
-        self.setGeometry(100,100,1030,800)
-        self.setWindowTitle("MyReadingPartner")
-        self.setWindowIcon(QtGui.QIcon("icons/icon.png"))
+        self.setGeometry(500,100,850,800)
+        self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+        #self.setAttribute(Qt.WA_TranslucentBackground)
+        #self.setWindowTitle("MyReadingPartner")
+        #self.setWindowIcon(QtGui.QIcon("icons/icon.png"))
 
+    #语音输入
+    def speakInput(self):
+        #my_record()
+        #use_cloud(get_token())
+        #testString=
+        testString='Contents'
+        cursor = self.text.textCursor()
+        cursor.insertText(testString)
 
-    def button_onclick(self):
-        def translateGoogle2(text):
-            translator=Translator(to_lang="zh")
+    #翻译
+    def translate(self):
+        def translateGoogle(text):
+            if self.comboBox.currentText()==self.choice_list[0]:
+                test='zh'
+            elif self.comboBox.currentText()==self.choice_list[1]:
+                test='en'
+            elif self.comboBox.currentText()==self.choice_list[2]:
+                test='fr'
+            elif self.comboBox.currentText()==self.choice_list[3]:
+                test='ja'
+            elif self.comboBox.currentText()==self.choice_list[4]:
+                test='ko'
+            else:
+                test='ru'
+            translator=Translator(to_lang=test,from_lang=detect(text))
             translation=translator.translate(text)
             return translation
 
-        stringtest = translateGoogle2(self.text.textCursor().selectedText())
-        self.textbox.setText(stringtest)
+        stringtest = translateGoogle(self.text.textCursor().selectedText())
+        self.translateBox.setText(stringtest)
 
+    #主题切换
+    def ThemeChange(self):
+        print("black or white")
+
+    def CloseB(self):
+        """
+        关闭窗口
+        """
+        self.close()
+
+    def MinisizeB(self):
+        """
+        最小化窗口
+        """
+        self.showMinimized()
 
     def changed(self):
         self.changesSaved = False
@@ -459,7 +433,7 @@ class Main(QtWidgets.QMainWindow):
 
             if self.formatbar.isVisible():
                 pos.setY(pos.y() + 45)
-                
+
             # Move the menu to the new position
             menu.move(pos)
 
@@ -531,7 +505,6 @@ class Main(QtWidgets.QMainWindow):
         # Insert a new row at the cell's position
         table.insertColumns(cell.column(),1)
 
-
     def toggleToolbar(self):
 
         state = self.toolbar.isVisible()
@@ -580,12 +553,17 @@ class Main(QtWidgets.QMainWindow):
 
         # Get filename and show only .writer files
         #PYQT5 Returns a tuple in PyQt5, we only need the filename
-        self.filename = QtWidgets.QFileDialog.getOpenFileName(self, 'Open File',".","(*.writer)")[0]
+        self.filename = QtWidgets.QFileDialog.getOpenFileName(self,"选取文件","C:/", "All Files (*);;Text Files (*.txt)")[0]
 
         if self.filename:
             with open(self.filename,"rt") as file:
                 self.text.setText(file.read())
 
+        """
+        filename,_ = QtWidgets.QFileDialog.getOpenFileName(self);
+        text=open(filename,'rt',encoding='UTF-8').read()
+        self.text.setText(text)
+        """
     def save(self):
 
         # Only open dialog if there is no filename yet
@@ -594,7 +572,7 @@ class Main(QtWidgets.QMainWindow):
           self.filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')[0]
 
         if self.filename:
-            
+            """
             # Append extension if not there yet
             if not self.filename.endswith(".writer"):
               self.filename += ".writer"
@@ -603,26 +581,11 @@ class Main(QtWidgets.QMainWindow):
             # format in html, which Qt does in a very nice way for us
             with open(self.filename,"wt") as file:
                 file.write(self.text.toHtml())
+            """
+            file=open(self.filename,"wt")
+            file.write(self.text.toHtml())
 
             self.changesSaved = True
-
-    def preview(self):
-
-        # Open preview dialog
-        preview = QtPrintSupport.QPrintPreviewDialog()
-
-        # If a print is requested, open print dialog
-        preview.paintRequested.connect(lambda p: self.text.print_(p))
-
-        preview.exec_()
-
-    def printHandler(self):
-
-        # Open printing dialog
-        dialog = QtPrintSupport.QPrintDialog()
-
-        if dialog.exec_() == QtWidgets.QDialog.Accepted:
-            self.text.document().print_(dialog.printer())
 
     def cursorPosition(self):
 
@@ -633,14 +596,6 @@ class Main(QtWidgets.QMainWindow):
         col = cursor.columnNumber()
 
         self.statusbar.showMessage("Line: {} | Column: {}".format(line,col))
-
-    def wordCount(self):
-
-        wc = wordcount.WordCount(self)
-
-        wc.getText()
-
-        wc.show()
 
     def insertImage(self):
 
@@ -677,12 +632,6 @@ class Main(QtWidgets.QMainWindow):
         # Set it as the new text color
         self.text.setTextColor(color)
 
-    def highlight(self):
-
-        color = QtWidgets.QColorDialog.getColor()
-
-        self.text.setTextBackgroundColor(color)
-
     def bold(self):
 
         if self.text.fontWeight() == QtGui.QFont.Bold:
@@ -699,12 +648,6 @@ class Main(QtWidgets.QMainWindow):
 
         self.text.setFontItalic(not state)
 
-    def underline(self):
-
-        state = self.text.fontUnderline()
-
-        self.text.setFontUnderline(not state)
-
     def strike(self):
 
         # Grab the text's format
@@ -714,46 +657,6 @@ class Main(QtWidgets.QMainWindow):
         fmt.setFontStrikeOut(not fmt.fontStrikeOut())
 
         # And set the next char format
-        self.text.setCurrentCharFormat(fmt)
-
-    def superScript(self):
-
-        # Grab the current format
-        fmt = self.text.currentCharFormat()
-
-        # And get the vertical alignment property
-        align = fmt.verticalAlignment()
-
-        # Toggle the state
-        if align == QtGui.QTextCharFormat.AlignNormal:
-
-            fmt.setVerticalAlignment(QtGui.QTextCharFormat.AlignSuperScript)
-
-        else:
-
-            fmt.setVerticalAlignment(QtGui.QTextCharFormat.AlignNormal)
-
-        # Set the new format
-        self.text.setCurrentCharFormat(fmt)
-
-    def subScript(self):
-
-        # Grab the current format
-        fmt = self.text.currentCharFormat()
-
-        # And get the vertical alignment property
-        align = fmt.verticalAlignment()
-
-        # Toggle the state
-        if align == QtGui.QTextCharFormat.AlignNormal:
-
-            fmt.setVerticalAlignment(QtGui.QTextCharFormat.AlignSubScript)
-
-        else:
-
-            fmt.setVerticalAlignment(QtGui.QTextCharFormat.AlignNormal)
-
-        # Set the new format
         self.text.setCurrentCharFormat(fmt)
 
     def alignLeft(self):
@@ -768,91 +671,6 @@ class Main(QtWidgets.QMainWindow):
     def alignJustify(self):
         self.text.setAlignment(Qt.AlignJustify)
 
-    def indent(self):
-
-        # Grab the cursor
-        cursor = self.text.textCursor()
-
-        if cursor.hasSelection():
-
-            # Store the current line/block number
-            temp = cursor.blockNumber()
-
-            # Move to the selection's end
-            cursor.setPosition(cursor.anchor())
-
-            # Calculate range of selection
-            diff = cursor.blockNumber() - temp
-
-            direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
-
-            # Iterate over lines (diff absolute value)
-            for n in range(abs(diff) + 1):
-
-                # Move to start of each line
-                cursor.movePosition(QtGui.QTextCursor.StartOfLine)
-
-                # Insert tabbing
-                cursor.insertText("\t")
-
-                # And move back up
-                cursor.movePosition(direction)
-
-        # If there is no selection, just insert a tab
-        else:
-
-            cursor.insertText("\t")
-
-    def handleDedent(self,cursor):
-
-        cursor.movePosition(QtGui.QTextCursor.StartOfLine)
-
-        # Grab the current line
-        line = cursor.block().text()
-
-        # If the line starts with a tab character, delete it
-        if line.startswith("\t"):
-
-            # Delete next character
-            cursor.deleteChar()
-
-        # Otherwise, delete all spaces until a non-space character is met
-        else:
-            for char in line[:8]:
-
-                if char != " ":
-                    break
-
-                cursor.deleteChar()
-
-    def dedent(self):
-
-        cursor = self.text.textCursor()
-
-        if cursor.hasSelection():
-
-            # Store the current line/block number
-            temp = cursor.blockNumber()
-
-            # Move to the selection's last line
-            cursor.setPosition(cursor.anchor())
-
-            # Calculate range of selection
-            diff = cursor.blockNumber() - temp
-
-            direction = QtGui.QTextCursor.Up if diff > 0 else QtGui.QTextCursor.Down
-
-            # Iterate over lines
-            for n in range(abs(diff) + 1):
-
-                self.handleDedent(cursor)
-
-                # Move up
-                cursor.movePosition(direction)
-
-        else:
-            self.handleDedent(cursor)
-
     def bulletList(self):
 
         cursor = self.text.textCursor()
@@ -866,6 +684,24 @@ class Main(QtWidgets.QMainWindow):
 
         # Insert list with numbers
         cursor.insertList(QtGui.QTextListFormat.ListDecimal)
+
+    def mousePressEvent(self, event):
+        if event.button()==Qt.LeftButton:
+            self.m_flag=True
+            self.m_Position=event.globalPos()-self.pos() #获取鼠标相对窗口的位置
+            event.accept()
+            self.setCursor(QtGui.QCursor(Qt.OpenHandCursor))  #更改鼠标图标
+
+    def mouseMoveEvent(self, QMouseEvent):
+
+        if Qt.LeftButton and self.m_flag:
+            self.move(QMouseEvent.globalPos()-self.m_Position)#更改窗口位置
+            QMouseEvent.accept()
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        self.m_flag=False
+        self.setCursor(QtGui.QCursor(Qt.ArrowCursor))
+
 
 def main():
     app = QtWidgets.QApplication(sys.argv)

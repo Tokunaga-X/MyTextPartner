@@ -16,16 +16,16 @@ from translate import Translator
 #add(QSS)
 
 class CommonHelper:
-    def __init__(self,parent=None):
+    def __init__(self, parent=None):
         pass
-    def readQss(self,  style):
-        with open(style,'r') as f:
+    def readQss(self, style):
+        with open(style, 'r') as f:
             return f.read()
 
 
 class Main(QtWidgets.QMainWindow):
 
-    choice_list=['中文','English','Français','日本語 ','한국어']
+    choice_list = ['中文','English','Français','日本語 ','한국어']
 
     def __init__(self,parent=None):
         QtWidgets.QMainWindow.__init__(self,parent)
@@ -50,79 +50,79 @@ class Main(QtWidgets.QMainWindow):
         #speakAction.triggered.connect(self.speakInput)
 
 
-        self.newAction = QtWidgets.QAction(QtGui.QIcon("icons/new1.png"),"New",self)
+        self.newAction = QtWidgets.QAction(QtGui.QIcon("icons/new1.png"),"新建",self)
         self.newAction.setShortcut("Ctrl+N")
         self.newAction.setStatusTip("新建一个编辑器程序。")
         self.newAction.triggered.connect(self.new)
 
-        self.openAction = QtWidgets.QAction(QtGui.QIcon("icons/open1.png"),"Open file",self)
+        self.openAction = QtWidgets.QAction(QtGui.QIcon("icons/open1.png"),"打开",self)
         self.openAction.setStatusTip("打开已存在的文本文件。")
         self.openAction.setShortcut("Ctrl+O")
         self.openAction.triggered.connect(self.open)
 
-        self.saveAction = QtWidgets.QAction(QtGui.QIcon("icons/save1.png"),"Save",self)
+        self.saveAction = QtWidgets.QAction(QtGui.QIcon("icons/save1.png"),"保存",self)
         self.saveAction.setStatusTip("如果已存在文件，保存当前内容；如果是新建的，就要选定位置保存。")
         self.saveAction.setShortcut("Ctrl+S")
         self.saveAction.triggered.connect(self.save)
 
-        self.undoAction = QtWidgets.QAction(QtGui.QIcon("icons/undo.png"),"Undo last action",self)
+        self.undoAction = QtWidgets.QAction(QtGui.QIcon("icons/undo.png"),"撤销",self)
         self.undoAction.setStatusTip("撤销上一步操作。")
         self.undoAction.setShortcut("Ctrl+Z")
         self.undoAction.triggered.connect(self.text.undo)
 
-        self.redoAction = QtWidgets.QAction(QtGui.QIcon("icons/redo.png"),"Redo last undone thing",self)
+        self.redoAction = QtWidgets.QAction(QtGui.QIcon("icons/redo.png"),"重做",self)
         self.redoAction.setStatusTip("重新执行上一步操作。")
         self.redoAction.setShortcut("Ctrl+Y")
         self.redoAction.triggered.connect(self.text.redo)
 
-        dateTimeAction = QtWidgets.QAction(QtGui.QIcon("icons/time.png"),"Insert current date/time",self)
+        dateTimeAction = QtWidgets.QAction(QtGui.QIcon("icons/time.png"),"插入当前时间",self)
         dateTimeAction.setStatusTip("在文本中插入当前时间。")
         dateTimeAction.setShortcut("Ctrl+D")
         dateTimeAction.triggered.connect(datetime.DateTime(self).show)
 
-        tableAction = QtWidgets.QAction(QtGui.QIcon("icons/table.png"),"Insert table",self)
+        tableAction = QtWidgets.QAction(QtGui.QIcon("icons/table.png"),"插入表格",self)
         tableAction.setStatusTip("在文本中插入表格。")
         tableAction.setShortcut("Ctrl+T")
         tableAction.triggered.connect(table.Table(self).show)
 
-        imageAction = QtWidgets.QAction(QtGui.QIcon("icons/image.png"),"Insert image",self)
+        imageAction = QtWidgets.QAction(QtGui.QIcon("icons/image.png"),"插入图片",self)
         imageAction.setStatusTip("在文本中插入图片。")
         imageAction.setShortcut("Ctrl+Shift+I")
         imageAction.triggered.connect(self.insertImage)
 
-        bulletAction = QtWidgets.QAction(QtGui.QIcon("icons/bullet.png"),"Insert bullet List",self)
+        bulletAction = QtWidgets.QAction(QtGui.QIcon("icons/bullet.png"),"插入点阵列表",self)
         bulletAction.setStatusTip("在文本中插入点列表。")
         bulletAction.setShortcut("Ctrl+Shift+B")
         bulletAction.triggered.connect(self.bulletList)
 
-        numberedAction = QtWidgets.QAction(QtGui.QIcon("icons/number.png"),"Insert numbered List",self)
+        numberedAction = QtWidgets.QAction(QtGui.QIcon("icons/number.png"),"插入数字列表",self)
         numberedAction.setStatusTip("在文本中插入数字列表。")
         numberedAction.setShortcut("Ctrl+Shift+L")
         numberedAction.triggered.connect(self.numberList)
 
-        boldAction = QtWidgets.QAction(QtGui.QIcon("icons/bold.png"),"Bold",self)
+        boldAction = QtWidgets.QAction(QtGui.QIcon("icons/bold.png"),"加粗",self)
         boldAction.setStatusTip("设置选中文本为粗体。")
         boldAction.triggered.connect(self.bold)
 
-        italicAction = QtWidgets.QAction(QtGui.QIcon("icons/italic.png"),"Italic",self)
+        italicAction = QtWidgets.QAction(QtGui.QIcon("icons/italic.png"),"斜体",self)
         italicAction.setStatusTip("设置选中文本为斜体。")
         italicAction.triggered.connect(self.italic)
 
-        strikeAction = QtWidgets.QAction(QtGui.QIcon("icons/strike.png"),"Strike-out",self)
+        strikeAction = QtWidgets.QAction(QtGui.QIcon("icons/strike.png"),"删去",self)
         strikeAction.setStatusTip("设置选中文本为删去状态。")
         strikeAction.triggered.connect(self.strike)
 
 
-        alignLeft = QtWidgets.QAction(QtGui.QIcon("icons/align-left.png"),"Align left",self)
+        alignLeft = QtWidgets.QAction(QtGui.QIcon("icons/align-left.png"),"左对齐",self)
         alignLeft.triggered.connect(self.alignLeft)
 
-        alignCenter = QtWidgets.QAction(QtGui.QIcon("icons/align-center.png"),"Align center",self)
+        alignCenter = QtWidgets.QAction(QtGui.QIcon("icons/align-center.png"),"居中",self)
         alignCenter.triggered.connect(self.alignCenter)
 
-        alignRight = QtWidgets.QAction(QtGui.QIcon("icons/align-right.png"),"Align right",self)
+        alignRight = QtWidgets.QAction(QtGui.QIcon("icons/align-right.png"),"右对齐",self)
         alignRight.triggered.connect(self.alignRight)
 
-        alignJustify = QtWidgets.QAction(QtGui.QIcon("icons/align-justify.png"),"Align justify",self)
+        alignJustify = QtWidgets.QAction(QtGui.QIcon("icons/align-justify.png"),"对齐",self)
         alignJustify.triggered.connect(self.alignJustify)
 
 
@@ -194,7 +194,7 @@ class Main(QtWidgets.QMainWindow):
     def initFormatbar(self):
         fontBox = QtWidgets.QFontComboBox(self)
         fontBox.currentFontChanged.connect(lambda font: self.text.setCurrentFont(font))
-        fontBox.setFont(QtGui.QFont("华文彩云"))
+        #fontBox.setFont(QtGui.QFont("华文彩云"))
 
         fontSize = QtWidgets.QSpinBox(self)
 
@@ -209,7 +209,7 @@ class Main(QtWidgets.QMainWindow):
         fontSize.setSuffix(" pt")
         fontSize.value()
         fontSize.setSingleStep(5)
-        fontSize.setWrapping(True);
+        fontSize.setWrapping(True)
 
         fontSize.valueChanged.connect(lambda size: self.text.setFontPointSize(size))
 
@@ -526,6 +526,7 @@ class Main(QtWidgets.QMainWindow):
         # Set the visibility to its inverse
         self.statusbar.setVisible(not state)
 
+    """
     def speakinput(self):
         r = sr.Recognizer()
         with sr.Microphone() as source:
@@ -542,6 +543,7 @@ class Main(QtWidgets.QMainWindow):
 
         except sr.RequestError as e:
             print("Could not request results from Google Speech Recognition service; {0}".format(e))
+    """
 
     def new(self):
 
@@ -564,12 +566,13 @@ class Main(QtWidgets.QMainWindow):
         text=open(filename,'rt',encoding='UTF-8').read()
         self.text.setText(text)
         """
+
     def save(self):
 
         # Only open dialog if there is no filename yet
         #PYQT5 Returns a tuple in PyQt5, we only need the filename
         if not self.filename:
-          self.filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')[0]
+            self.filename = QtWidgets.QFileDialog.getSaveFileName(self, 'Save File')[0]
 
         if self.filename:
             """

@@ -5,7 +5,7 @@
 *******
 ## 轻量级富文本编辑器  
 ![Now](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/1.png "项目现状")
-    ![Look](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/2.png "看")
+![Look](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/2.png "看")
 
 ### 功能:
 `富文本编辑` `文本翻译`

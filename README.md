@@ -1,9 +1,8 @@
-# MTP(MyTextPartner)
+## 介绍
 *******
-**大三上软件工程大作业**  
-**成员：徐宇超、蔡锦琦、毛亮钧**  
+这是大三软件工程的课程大作业。
+作为组长，与另外两名同学一起完成。
 *******
-## 轻量级富文本编辑器  
 ![Now](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/1.png "项目现状")
 ![Look](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/2.png "看")
 
@@ -15,7 +14,7 @@
 灵感来源：http://www.wangeditor.com/  
 UI资源：http://thestocks.im/
 
-### 优秀的库：
+### 使用到的优秀的库：
 https://github.com/terryyin/translate-python  
 https://github.com/Mimino666/langdetect  
 

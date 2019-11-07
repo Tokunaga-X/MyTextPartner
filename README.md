@@ -3,8 +3,10 @@
 这是大三软件工程的课程大作业。
 作为组长，与另外两名同学一起完成。
 *******
-![Now](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/1.png "项目现状")
-![Look](https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/2.png "看")
+<img src="https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/1.png" width="60%" />
+
+<img src="https://github.com/Donald-punk/MyTextPartner/blob/master/Code/image/2.png" width="50%" />
+
 
 ### 功能:
 `富文本编辑` `文本翻译`
